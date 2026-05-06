@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Takoyaki Mazboy 🐙</title>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;700;900&family=Noto+Serif+JP:wght@400;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-pattern"></div>
+  <span class="hdr-icon">🐙</span>
+  <div class="hdr-jp">たこ焼き</div>
+  <h1 class="hdr-name">Takoyaki <span>Mazboy</span></h1>
+  <div class="hdr-sub">Mazboy Group · Outlet Kalibaru</div>
+  <div class="hdr-badge"><span class="hdr-dot"></span><span>POS System v2.0</span></div>
+</div>
+<!-- BOTTOM NAV -->
+<nav class="nav">
+  <button class="nav-btn on" id="nb-absen" onclick="sw('absen',this)">
+    <span class="ico">📍</span>Absen
+  </button>
+  <button class="nav-btn" id="nb-jual" onclick="sw('jual',this)">
+    <span class="ico">🐙</span>Jualan
+  </button>
+  <button class="nav-btn" id="nb-stok" onclick="sw('stok',this)">
+    <span class="ico">📦</span>Stok
+  </button>
+  <button class="nav-btn" id="nb-printer" onclick="sw('printer',this)">
+    <span class="ico">🖨️</span>Printer
+  </button>
+  <button class="nav-btn" id="nb-rekap" onclick="sw('rekap',this)">
+    <span class="ico">📊</span>Rekap
+  </button>
+</nav>
+<div class="wrap">
+  <!-- ════════ TAB ABSEN ════════ -->
+  <div id="tab-absen" class="tab on">
+    <div class="prof-card">
+      <div class="prof-hd">
+        <div class="prof-av">🐙</div>
+        <div class="prof-info">
+          <p>Selamat bekerja,</p>
+          <h2 id="dn">Nama Staff</h2>
+          <p class="role" id="dr">Shift belum dipilih</p>
+        </div>
+      </div>
+      <div class="prof-meta">
+        <span>🕒 <strong id="clk">00:00:00</strong></span>
+        <span>📍 <strong>Outlet Kalibaru</strong></span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">📋 Data Check-In</div>
+      <div class="fgrp">
+        <label>Nama Lengkap</label>
+        <input type="text" id="p_nama" oninput="updProf()" placeholder="Ketuk untuk input nama...">
+      </div>
+      <div class="fgrp">
+        <label>Shift Kerja</label>
+        <select id="p_shift" onchange="updProf()">
+          <option value="">— Pilih Shift —</option>
+          <option>Shift Pagi</option>
+          <option>Shift Malam</option>
+        </select>
+      </div>
+      <div class="fgrp">
+        <label>Modal Awal (Cash)</label>
+        <input type="text" id="p_modal" onkeyup="fmt(this);calcTot()" placeholder="Rp 0">
+      </div>
+      <button class="btn-main" onclick="checkin()">✓ Konfirmasi Mulai Kerja</button>
+    </div>
+  </div>
+  <!-- ════════ TAB JUALAN ════════ -->
+  <div id="tab-jual" class="tab">
+    <div class="card">
+      <div class="card-ttl">🐙 Menu Takoyaki</div>
+      <div id="gmenu" class="menu-grid"></div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">🧄 Topping <span style="font-size:10px;color:var(--ink3);font-weight:600;font-family:Nunito">(tidak dihitung porsi)</span></div>
+      <div id="gtopping" class="top-grid"></div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">🍯 Saus Tambahan</div>
+      <div id="gsauce" class="sauce-grid"></div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">💸 Pengeluaran Shift</div>
+      <div id="explist"></div>
+      <div class="exp-add-row">
+        <input id="en" type="text" placeholder="Nama pengeluaran...">
+        <input id="ep" type="text" placeholder="Rp 0" onkeyup="fmt(this)">
+        <button class="btn-add" onclick="addExp()">+</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">💰 Input Non-Tunai</div>
+      <div class="fgrp">
+        <label>Masuk via QRIS (Otomatis)</label>
+        <input type="text" id="p_qris" placeholder="Rp 0" readonly style="background:#f5f5f5;border-color:var(--blue-light)">
+      </div>
+      <div class="fgrp">
+        <label>Masuk via Gojek / Online (Otomatis)</label>
+        <input type="text" id="p_online" placeholder="Rp 0" readonly style="background:#f5f5f5;border-color:var(--green-light)">
+      </div>
+      <div class="stor-row"><span>Total Porsi Terjual</span><strong id="t_porsi">0 Porsi</strong></div>
+      <div class="stor-row big"><span>Setoran TUNAI</span><strong id="t_tunai">Rp 0</strong></div>
+      <button class="btn-wa" onclick="checkout()">⚡ Kirim Laporan ke WhatsApp</button>
+    </div>
+  </div>
+  <!-- ════════ TAB STOK ════════ -->
+  <div id="tab-stok" class="tab">
+    <div class="card">
+      <div class="card-ttl">📦 Stok Opname Real-Time</div>
+      <div id="stok-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">📝 Catatan Stok</div>
+      <div class="fgrp">
+        <label>Sisa Adonan / Takoyaki Ball</label>
+        <input id="s_adonan" type="number" placeholder="Jumlah ball tersisa">
+      </div>
+      <div class="fgrp">
+        <label>Sisa Bahan Utama</label>
+        <input id="s_bahan" type="text" placeholder="Contoh: Gurita 200g, Tepung 1kg...">
+      </div>
+      <div class="fgrp">
+        <label>Catatan Tambahan</label>
+        <textarea id="s_note" rows="3" placeholder="Contoh: kompor bermasalah, perlu restock saus..."></textarea>
+      </div>
+      <p style="font-size:11px;color:var(--ink3);font-style:italic;margin-top:4px">*Data stok ikut terkirim dalam laporan WA.</p>
+    </div>
+  </div>
+  <!-- ════════ TAB PRINTER ════════ -->
+  <div id="tab-printer" class="tab">
+    <div class="printer-card">
+      <div class="printer-ttl">🖨️ Koneksi Printer</div>
+      <div class="printer-status">
+        <div class="p-dot" id="p-dot"></div>
+        <div>
+          <div class="p-status-text" id="p-status-text">Belum Terhubung</div>
+          <div class="p-status-sub" id="p-status-sub">Pilih metode koneksi di bawah</div>
+        </div>
+      </div>
+      <div style="margin-bottom:12px">
+        <span class="printer-label">Metode Koneksi</span>
+        <div class="printer-method-row">
+          <button class="pm-btn sel" id="pm-lan" onclick="setPrinterMethod('lan',this)">🌐 LAN/WiFi</button>
+          <button class="pm-btn" id="pm-bt" onclick="setPrinterMethod('bluetooth',this)">🔵 Bluetooth</button>
+          <button class="pm-btn" id="pm-usb" onclick="setPrinterMethod('usb',this)">🔌 USB</button>
+        </div>
+      </div>
+      <!-- Bluetooth Settings View -->
+      <div id="bt-settings" style="display:none">
+        <p style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:12px;">
+          Pastikan Bluetooth HP/Perangkat menyala dan printer thermal dalam mode pairing.
+        </p>
+      </div>
+      <!-- LAN Settings -->
+      <div id="lan-settings">
+        <div style="margin-bottom:10px">
+          <span class="printer-label">IP Address Printer</span>
+          <input type="text" id="printer-ip" class="printer-input" placeholder="192.168.1.100" style="width:100%;padding:10px 12px;border:1.5px solid rgba(255,255,255,.2);border-radius:10px;background:rgba(255,255,255,.08);color:#fff;font-size:13px;font-family:Nunito;">
+        </div>
+        <div style="margin-bottom:12px">
+          <span class="printer-label">Port (default: 9100)</span>
+          <input type="number" id="printer-port" class="printer-input" value="9100" style="width:100%;padding:10px 12px;border:1.5px solid rgba(255,255,255,.2);border-radius:10px;background:rgba(255,255,255,.08);color:#fff;font-size:13px;font-family:Nunito;">
+        </div>
+      </div>
+      <!-- USB Settings -->
+      <div id="usb-settings" style="display:none">
+        <p style="font-size:12px;color:rgba(255,255,255,.5);margin-bottom:12px;line-height:1.6;">Koneksi USB menggunakan Web USB API. Pastikan printer ESC/POS tersambung via kabel USB.</p>
+      </div>
+      <div class="printer-btns">
+        <button class="btn-printer" onclick="testPrinter()">🔍 Test Koneksi</button>
+        <button class="btn-printer primary" onclick="connectPrinter()">⚡ Hubungkan</button>
+      </div>
+      <div class="printer-log" id="printer-log">[ Printer log akan muncul di sini ]</div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">🧾 Pengaturan Struk</div>
+      <div class="fgrp">
+        <label>Nama Toko (Header Struk)</label>
+        <input type="text" id="r_nama_toko" value="Takoyaki Mazboy" placeholder="Nama toko...">
+      </div>
+      <div class="fgrp">
+        <label>Alamat / Lokasi</label>
+        <input type="text" id="r_alamat" value="Outlet Kalibaru" placeholder="Alamat outlet...">
+      </div>
+      <div class="fgrp">
+        <label>Pesan Footer</label>
+        <input type="text" id="r_footer" value="Terima kasih! Arigato! 🐙" placeholder="Pesan terima kasih...">
+      </div>
+      <div class="fgrp">
+        <label>No. WhatsApp / Kontak</label>
+        <input type="text" id="r_kontak" value="" placeholder="0812xxxx">
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button class="btn-main" style="font-size:13px;padding:12px" onclick="previewReceipt(null,'preview')">👁 Preview Struk</button>
+        <button class="btn-main" style="font-size:13px;padding:12px;background:linear-gradient(135deg,#1B5E20,#2E7D32)" onclick="printTestReceipt()">🖨 Test Print</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-ttl">⚙️ Opsi Cetak Otomatis</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed var(--border)">
+        <div>
+          <div style="font-size:14px;font-weight:700">Auto-cetak saat pesanan disimpan</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px">Langsung print setiap konfirmasi pesanan</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="auto-print" onchange="saveData()">
+          <span class="t-slider"></span>
+        </label>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0">
+        <div>
+          <div style="font-size:14px;font-weight:700">Cetak ringkasan akhir shift</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:2px">Print rekap saat kirim laporan WA</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="auto-print-shift" checked onchange="saveData()">
+          <span class="t-slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+  <!-- ════════ TAB REKAP ════════ -->
+  <div id="tab-rekap" class="tab">
+    <div class="card">
+      <div class="card-ttl">📊 Ringkasan Shift</div>
+      <div class="rekap-box" id="rbox"><div class="empty">Belum ada transaksi</div></div>
+    </div>
+    <div id="rlist"></div>
+  </div>
+</div>
+<!-- FLOATING CART -->
+<button id="fcart" onclick="openM()">
+  <div class="fcart-l">
+    <span class="fcart-bubble" id="fc-cnt">0</span>
+    <span id="fc-lbl">porsi di keranjang</span>
+  </div>
+  <span class="fcart-r" id="fc-tot">Rp 0</span>
+</button>
+<!-- ORDER MODAL -->
+<div id="ov" onclick="ovClick(event)">
+  <div id="modal">
+    <div class="m-handle"></div>
+    <div class="m-hdr">
+      <div>
+        <div class="m-title">🐙 Keranjang Pesanan</div>
+        <div class="m-sub" id="m-sub">Pesanan baru</div>
+      </div>
+      <div class="m-hdr-r">
+        <span class="porsi-chip" id="m-chip">0 porsi</span>
+        <button class="btn-x" onclick="closeM()">✕</button>
+      </div>
+    </div>
+    <div class="m-scroll">
+      <div class="pil-block">
+        <div class="pil-ttl">👤 Nama Pelanggan</div>
+        <input type="text" id="c_name" placeholder="Masukkan nama pelanggan..." style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);font-family:inherit;font-size:15px;margin-top:8px;outline:none;">
+      </div>
+      <div class="m-sec-lbl">🐙 Menu Takoyaki</div>
+      <div id="ml-menu"></div>
+      <div id="ml-top-wrap" style="display:none">
+        <div class="m-sec-lbl">🧄 Topping</div>
+        <div id="ml-topping"></div>
+      </div>
+      <div id="ml-sauce-wrap" style="display:none">
+        <div class="m-sec-lbl">🍯 Saus</div>
+        <div id="ml-sauce"></div>
+      </div>
+      <!-- Kematangan -->
+      <div class="pil-block">
+        <div class="pil-ttl">🔥 Tingkat Kematangan</div>
+        <div class="mat-row">
+          <button class="mc2 sel" data-v="Matang" onclick="setMat(this)">🟠<br>Matang</button>
+          <button class="mc2" data-v="3/4 Matang" onclick="setMat(this)">🟡<br>3/4</button>
+          <button class="mc2" data-v="Setengah" onclick="setMat(this)">⚪<br>Setengah</button>
+        </div>
+      </div>
+      <!-- Bayar -->
+      <div class="pil-block" style="border-top:1px solid var(--parchment)">
+        <div class="pil-ttl">💳 Metode Pembayaran</div>
+        <div class="pay-row">
+          <button class="pc2 sel" data-v="Tunai" onclick="setPay(this)">💵<br>Tunai</button>
+          <button class="pc2" data-v="QRIS" onclick="setPay(this)">📱<br>QRIS</button>
+          <button class="pc2" data-v="Gojek/Online" onclick="setPay(this)">🛵<br>Gojek</button>
+        </div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <div class="m-tot-row">
+        <div>
+          <div class="m-tot-lbl">Subtotal pesanan ini</div>
+          <div class="m-tot-amt" id="m-tot">Rp 0</div>
+        </div>
+      </div>
+      <div class="m-btns">
+        <button class="btn-rst" onclick="resetCart()">🗑 Reset</button>
+        <button class="btn-ok" onclick="confirmOrder()">✓ Simpan + Cetak</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- RECEIPT PREVIEW OVERLAY -->
+<div id="print-ov">
+  <div class="receipt-wrap">
+    <div class="receipt-inner" id="receipt-content"></div>
+    <div class="receipt-actions">
+      <button class="receipt-btn close" onclick="closePrintOv()">✕ Tutup</button>
+      <button class="receipt-btn print" onclick="doPrint()">🖨 Cetak</button>
+    </div>
+  </div>
+</div>
+<!-- TOAST -->
+<div id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
