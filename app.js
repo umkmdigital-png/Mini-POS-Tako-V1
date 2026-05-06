@@ -655,27 +655,52 @@ function printTestReceipt(){
    BLUETOOTH
 ══════════════════════════════════════════ */
 let btCharacteristic = null;
-async function connectBluetooth(){
-  try{
+async function connectBluetooth() {
+  try {
     printerLog("Mencari perangkat Bluetooth...");
-    const device=await navigator.bluetooth.requestDevice({
-      filters:[{services:['000018f0-0000-1000-8000-00805f9b34fb']}],
-      optionalServices:['000018f0-0000-1000-8000-00805f9b34fb']
+    
+    // Gunakan acceptAllDevices jika filter UUID sering gagal
+    const device = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: [
+        '000018f0-0000-1000-8000-00805f9b34fb', 
+        '0000ff00-0000-1000-8000-00805f9b34fb', // Sering digunakan printer murah
+        '49535343-fe7d-4ae5-8fa9-9fafd205e455'  // UUID alternatif
+      ]
     });
+
     printerLog(`Menghubungkan ke ${device.name}...`);
-    const server=await device.gatt.connect();
-    const service=await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-    const characteristics=await service.getCharacteristics();
-    btCharacteristic=characteristics.find(c=>c.properties.write||c.properties.writeWithoutResponse);
-    if(btCharacteristic){
-      printerConnected=true;
-      updatePrinterStatus('connected',`BT: ${device.name}`,'Terhubung via Bluetooth');
+    const server = await device.gatt.connect();
+    
+    // Mencoba mencari service yang tersedia dari daftar optionalServices
+    let service = null;
+    const services = await server.getPrimaryServices();
+    
+    if (services.length > 0) {
+      service = services[0]; // Ambil service pertama yang ditemukan
+    } else {
+      throw new Error("Service printer tidak ditemukan.");
+    }
+
+    const characteristics = await service.getCharacteristics();
+    // Mencari karakteristik yang mendukung penulisan data (Write)
+    btCharacteristic = characteristics.find(c => 
+      c.properties.write || c.properties.writeWithoutResponse
+    );
+
+    if (btCharacteristic) {
+      printerConnected = true;
+      updatePrinterStatus('connected', `BT: ${device.name}`, 'Terhubung via Bluetooth');
       printerLog("✓ Printer Bluetooth siap!");
       toast("✓ Bluetooth Terhubung!");
+    } else {
+      throw new Error("Karakteristik Write tidak ditemukan.");
     }
-  }catch(error){
-    printerLog("✗ Error BT: "+error.message);
-    updatePrinterStatus('error','Gagal Bluetooth',error.message);
+  } catch (error) {
+    console.error(error);
+    printerLog("✗ Error BT: " + error.message);
+    updatePrinterStatus('error', 'Gagal Bluetooth', error.message);
+    toast("Gagal: " + error.message);
   }
 }
 async function sendDataToPrinter(uint8array){
