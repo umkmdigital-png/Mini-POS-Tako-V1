@@ -17,13 +17,14 @@ const MT = [
   {id:'t6', em:'🥯', n:'Cikuwa', h:0},
   {id:'t7', em:'🥓', n:'Kornet', h:0},
   {id:'t8', em:'🦀', n:'Crabstick', h:0},
-  {id:'t6', em:'🌭', n:'Sosis', h:0},
+  {id:'t9', em:'🌭', n:'Sosis', h:0},
 ];
 const MS = [
-  {id:'s3', em:'🧀', n:'Keju',         h:3000},
-  {id:'s4', em:'🟢', n:'Wasabi Mayo',    h:3000},
-  {id:'s5', em:'🍯', n:'Honey Mustard',  h:3000},
-  {id:'s6', em:'⚫', n:'Unagi Sauce',    h:3000},
+  {id:'s1', em:'🧀', n:'Keju',         h:3000},
+  {id:'s2', em:'🍡', n:'Saus takoyaki',    h:0},
+  {id:'s3', em:'🍯', n:'Mayones',  h:0},
+  {id:'s4', em:'🌶️', n:'Saus Pedas',    h:0},
+  {id:'s5', em:'⚫', n:'Pisah Semua',    h:0},
 ];
 // Stok bahan utama
 let stokBahan = [
